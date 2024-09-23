@@ -3,8 +3,6 @@ Treehouse Techdegree: Peace Murerwa
 FSJS Project 2 - Data Pagination and Filtering
 */
 
-
-
 /*
 For assistance:
    Check out the "Project Resources" section of the Instructions tab: https://teamtreehouse.com/projects/data-pagination-and-filtering#instructions
@@ -13,38 +11,35 @@ For assistance:
 
 //console.log(data);
 
-//Global variable to define how many items(students) to display per page
-//It will be access in two different functions
-const studentsPerPage = 9; 
+//Global constant 
+const studentsPerPage = 9;
 
-/* 
-Create the `showPage` function
-* @param {number} list - the array of student data we are working with
-* @param {number} page - the page number that we want to display.
-* @return {number} - this function will create and insert/append the elements needed to display a "page" of nine students
-*/
 // Function to show a specific page of students
 function showPage(list, page) {
-  const startIndex = page * studentsPerPage - studentsPerPage; // Calculate the start index
-  const endIndex = page * studentsPerPage; // Calculate the end index
-
+  const startIndex = (page * studentsPerPage) - studentsPerPage; // Calculate the start index
+  const endIndex = (page * studentsPerPage) - 1; // Calculate the end index
   const studentList = document.querySelector(".student-list"); // Select the student-list element
-  studentList.innerHTML = ""; // Clear the current contents of the student-list
+  
+  studentList.innerHTML = ""; // Clear the previous contents
 
   // Loop over the list of students
   for (let i = 0; i < list.length; i++) {
+   const student = list[i]; //To easily reference the specific student object in the subsequent code block without repeatedly using list[i]
     // Check if the current index is within the range for the current page
     if (i >= startIndex && i < endIndex) {
-      // Create the HTML structure for the student
+      // Create the HTML structure to only display students for the current page
       const studentHTML = `
-         <li class="student-item">
-            <div class="student-details">
-               <img class="student-image" src="${list[i].picture.large}" alt="Profile Picture">
-                  <h3 class="student-name">${list[i].name.title} ${list[i].name.first} ${list[i].name.last}</h3>
-                  <p class="student-email">${list[i].email}</p>
-                  <p class="student-registered">Registered: ${list[i].registered.date}</p>
-            </div>
-         </li>
+        <li class="student-item cf">
+          <div class="student-details">
+            <img class="avatar" src="${student.picture.large}" alt="Profile Picture">
+            <h3>${student.name.first} ${student.name.last}</h3>
+            <span class="email">${student.email}</span>
+          </div>
+          <div class="joined-details">
+            <span class="date">Joined ${student.registered.date}</span>
+          </div>
+        </li>
+
       `;
       // Insert the student HTML into the student-list
       studentList.insertAdjacentHTML("beforeend", studentHTML);
@@ -53,57 +48,37 @@ function showPage(list, page) {
 }
 
 
-
-/*
-Create the `addPagination` function
-* @param {number} list - the array of student  objects
-* @return {number} - this function will create and insert/append the elements needed for the pagination buttons
-*/
+// Function to add pagination buttons
 function addPagination(list) {
   const numberOfPages = Math.ceil(list.length / studentsPerPage); // Calculate number of pages
+  const linkList = document.querySelector(".link-list");  // Select the link-list element
+  linkList.innerHTML = ""; // Clear the previous contents of the link-list
 
-  // Select the link-list element
-  const linkList = document.querySelector(".link-list");
-  linkList.innerHTML = ""; // Clear the current contents of the link-list
-
-  // Loop over the number of pages
+  // Loop over the number of pages to create pagination buttons
   for (let i = 1; i <= numberOfPages; i++) {
-    // Create a button for each page
-    const buttonHTML = `
-      <li>
-         <button type="button">${i}</button>
-      </li>
-   `;
-    // Insert the button HTML into the link-list
-    linkList.insertAdjacentHTML("beforeend", buttonHTML);
+    const button = `<li><button type="button">${i}</button></li>`;     // Create a button for each page
+    linkList.insertAdjacentHTML("beforeend", button);     // Insert the button into the link-list
   }
-
-   // Select the first pagination button and give it a class name of active
+  // Select the first pagination button and give it a class name of active
   const firstButton = linkList.querySelector("button");
   if (firstButton) {
-    firstButton.classList.add("active");
-  }
-
-  // Add event listener to link-list
+   firstButton.className = 'active';
+ }
+  // Add event listener to link-list for pagination buttons
   linkList.addEventListener("click", (event) => {
-    // Check if a button was clicked
-    if (event.target.tagName === "BUTTON") {
-      const buttons = linkList.querySelectorAll("button"); // Remove active class from other buttons
-      buttons.forEach((button) => button.classList.remove("active"));
-      event.target.classList.add("active"); // Add active class to the clicked button
-      showPage(list, parseInt(event.target.textContent)); // Call the showPage function with the list and the page number
+   if (event.target.tagName === 'BUTTON') {
+      document.querySelector('.active').className = ''; // Remove active class
+      event.target.className = 'active'; // Add active class to clicked button
+      const pageNumber = parseInt(event.target.textContent);
+      showPage(list, pageNumber); // Call the showPage function with the list and the page number
     }
   });
 }
-
-
 // Exceeds Expectations part!
-/*
-Create the `addSearchComponent`function
-* @return {number} - this function adds a search component
-*/
+
+//Create the `addSearchComponent`function
 function addSearchComponent() {
-  const header = document.querySelector("header");
+  const header = document.querySelector(".header");
   const searchHTML = `
       <label for="search" class="student-search">
          <span>Search by name</span>
@@ -111,62 +86,43 @@ function addSearchComponent() {
          <button type="button"><img src="img/icn-search.svg" alt="Search icon"></button>
       </label>
    `;
-  header.insertAdjacentHTML("beforeend", searchHTML);
+  header.insertAdjacentHTML("beforeend", searchHTML); // Insert the search bar
+
 }
 
-/*
-Create the `searchStudents` function
-* @param {number} list - the array of student  objects
-* @return {number} - this function will handle search functionality
-*/
-function searchStudents(list) {
-  const searchInput = document.getElementById("search");
+//Create the `searchStudents` function
 
-  // Event listener for real-time search
-  searchInput.addEventListener("keyup", () => {
-    const searchValue = searchInput.value.toLowerCase();
-    const filteredStudents = list.filter((student) =>
-      student.name.toLowerCase().includes(searchValue)
-    );
-
-    if (filteredStudents.length > 0) {
-      showPage(filteredStudents, 1);
-      addPagination(filteredStudents);
-    } else {
-      document.querySelector(".student-list").innerHTML =
-        '<p class="no-results">No results found</p>';
-      document.querySelector(".link-list").innerHTML = ""; // Clear pagination
-    }
-  });
-
-  // Event listener for search button
-  document
-    .querySelector(".student-search button")
-    .addEventListener("click", () => {
-      const searchValue = searchInput.value.toLowerCase();
-      const filteredStudents = list.filter((student) =>
-        student.name.toLowerCase().includes(searchValue)
-      );
-
-      if (filteredStudents.length > 0) {
-        showPage(filteredStudents, 1);
-        addPagination(filteredStudents);
-      } else {
-        document.querySelector(".student-list").innerHTML =
-          '<p class="no-results">No results found</p>';
-        document.querySelector(".link-list").innerHTML = ""; // Clear pagination
-      }
-    });
-}
-
-// Call functions
-// // Call the showPage function once the DOM is fully loaded
-// document.addEventListener("DOMContentLoaded", () => {
-//   showPage(data, 3); // Call the function with the student list and the desired page number
-// });
+function searchStudents(searchInput, list) {
+   const searchTerm = searchInput.value.toLowerCase();
+   const filteredList = list.filter(student => {
+     const fullName = `${student.name.first.toLowerCase()} ${student.name.last.toLowerCase()}`;
+     return fullName.includes(searchTerm); // Match search term
+   });
+ 
+   if (filteredList.length > 0) {
+     showPage(filteredList, 1); // Show first page of results
+     addPagination(filteredList); // Update pagination based on results
+   } else {
+     document.querySelector('.student-list').innerHTML = '<p class="no-results">No results found</p>';
+     document.querySelector('.link-list').innerHTML = ''; // Clear pagination
+   }
+ }
+ 
+ // Attach search functionality
+ function handleSearch(list) {
+   const searchInput = document.getElementById('search');
+   const searchButton = document.querySelector('.student-search button');
+   
+   // Search on button click
+   searchButton.addEventListener('click', () => searchStudents(searchInput, list));
+ 
+   // Search on keyup for real-time filtering
+   searchInput.addEventListener('keyup', () => searchStudents(searchInput, list));
+ }
+ 
 
 // Call the functions to initialize the page
+addSearchComponent();
 showPage(data, 1);
 addPagination(data);
-addSearchComponent();
-searchStudents(data);
+handleSearch(data);
