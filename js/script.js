@@ -17,7 +17,7 @@ const studentsPerPage = 9;
 // Function to show a specific page of students
 function showPage(list, page) {
   const startIndex = (page * studentsPerPage) - studentsPerPage; // Calculate the start index
-  const endIndex = (page * studentsPerPage) - 1; // Calculate the end index
+  const endIndex = (page * studentsPerPage); // Calculate the end index
   const studentList = document.querySelector(".student-list"); // Select the student-list element
   
   studentList.innerHTML = ""; // Clear the previous contents
